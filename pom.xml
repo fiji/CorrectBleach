@@ -24,6 +24,13 @@
 		</dependency>
 	</dependencies>
 
+	<scm>
+		<connection>scm:git:git://github.com/fiji/CorrectBleach</connection>
+		<developerConnection>scm:git:git@github.com:fiji/CorrectBleach</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/fiji/CorrectBleach</url>
+	</scm>
+
 	<repositories>
 		<!-- NB: for project parent, in case of partial checkout -->
 		<repository>
