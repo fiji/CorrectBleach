@@ -24,6 +24,11 @@
 		</dependency>
 	</dependencies>
 
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://jenkins.imagej.net/job/CorrectBleach/</url>
+	</ciManagement>
+
 	<scm>
 		<connection>scm:git:git://github.com/fiji/CorrectBleach</connection>
 		<developerConnection>scm:git:git@github.com:fiji/CorrectBleach</developerConnection>
