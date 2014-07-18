@@ -123,17 +123,18 @@ public class BleachCorrection_SimpleRatio {
 				currentInt = 0.0;
 				for (int j = 0; j < zframes; j++) {
 					curip = imp.getImageStack().getProcessor(i * zframes + j + 1);
+					curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
+					curip.add(-1 * baselineInt);
 					curip.setRoi(curROI);
 					imgstat = curip.getStatistics();
 					currentInt += imgstat.mean;
 					curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
-					curip.add(-1 * baselineInt);
 				}
 				currentInt /= zframes;
-				currentInt -= baselineInt;
 
 				if (i == 0) {
 					referenceInt = currentInt;
+          IJ.log("ref intensity=" + referenceInt );
 				} else {
 					ratio = referenceInt / currentInt;
 					for (int j = 0; j < zframes; j++) {
@@ -141,7 +142,8 @@ public class BleachCorrection_SimpleRatio {
 						curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
 						curip.multiply(ratio);
 					}
-					System.out.println("frame"+i+1+ ": mean int="+ currentInt +  " ratio=" + ratio);
+					IJ.log("frame"+ Integer.toString(i+1) + "mean int="+ currentInt +  " ratio=" + ratio);
+					//System.out.println("frame"+i+1+ ": mean int="+ currentInt +  " ratio=" + ratio);
 				}
 			}
 		}
