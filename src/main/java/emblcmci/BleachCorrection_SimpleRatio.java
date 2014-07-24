@@ -99,20 +99,21 @@ public class BleachCorrection_SimpleRatio {
 		if (!is3DT) {
 			for (int i = 0; i < imp.getStackSize(); i++){
 				curip = imp.getImageStack().getProcessor(i+1);
+				curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
+				curip.add(-1 * baselineInt);
+        
 				curip.setRoi(curROI);
 				imgstat = curip.getStatistics();
 
 				curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
 				if (i == 0) {
-					referenceInt = imgstat.mean - baselineInt;
-					curip.add(-1 * baselineInt);
-					System.out.println("ref intensity=" + imgstat.mean);
+					referenceInt = imgstat.mean;
+					IJ.log("ref intensity=" + imgstat.mean);
 				} else {
-					currentInt = imgstat.mean - baselineInt;
+					currentInt = imgstat.mean;
 					ratio = referenceInt / currentInt;
-					curip.add(-1 * baselineInt);
 					curip.multiply(ratio);
-					System.out.println("frame"+i+1+ "mean int="+ currentInt +  " ratio=" + ratio);
+					IJ.log("frame"+ Integer.toString(i+1) + "mean int="+ currentInt +  " ratio=" + ratio);
 				}
 
 			}
@@ -121,17 +122,18 @@ public class BleachCorrection_SimpleRatio {
 				currentInt = 0.0;
 				for (int j = 0; j < zframes; j++) {
 					curip = imp.getImageStack().getProcessor(i * zframes + j + 1);
+					curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
+					curip.add(-1 * baselineInt);
 					curip.setRoi(curROI);
 					imgstat = curip.getStatistics();
 					currentInt += imgstat.mean;
 					curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
-					curip.add(-1 * baselineInt);
 				}
 				currentInt /= zframes;
-				currentInt -= baselineInt;
 
 				if (i == 0) {
 					referenceInt = currentInt;
+					IJ.log("ref intensity=" + referenceInt );
 				} else {
 					ratio = referenceInt / currentInt;
 					for (int j = 0; j < zframes; j++) {
@@ -139,13 +141,10 @@ public class BleachCorrection_SimpleRatio {
 						curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
 						curip.multiply(ratio);
 					}
-					System.out.println("frame"+i+1+ ": mean int="+ currentInt +  " ratio=" + ratio);
+					IJ.log("frame"+ Integer.toString(i+1) + "mean int="+ currentInt +  " ratio=" + ratio);
 				}
 			}
 		}
-
 		return imp;
 	}
-
-
 }

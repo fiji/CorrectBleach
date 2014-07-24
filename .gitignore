@@ -5,3 +5,9 @@
 
 # Maven #
 /target/
+
+# OSX #
+*.DS_Store
+
+# misc #
+/tags
