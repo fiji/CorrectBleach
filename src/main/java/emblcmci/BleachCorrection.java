@@ -41,9 +41,6 @@ import ij.gui.Roi;
 import ij.plugin.Duplicator;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
-import emblcmci.BleachCorrection_ExpoFit;
-import emblcmci.BleachCorrection_MH;
-import emblcmci.BleachCorrection_SimpleRatio;
 
 
 public class BleachCorrection implements PlugInFilter {
