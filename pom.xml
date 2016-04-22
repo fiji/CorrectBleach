@@ -26,7 +26,7 @@
 				<role>founder</role>
 				<role>lead</role>
 				<role>debugger</role>
-				<role>reviewer</roler>
+				<role>reviewer</role>
 				<role>support</role>
 			</roles>
 		</developer>
@@ -54,7 +54,7 @@
 			<properties><id>dscho</id></properties>
 			<roles><role>founder</role></roles>
 		</contributor>
-		<contributor><name>Jens Rietdorf</name>
+		<contributor><name>Jens Rietdorf</name></contributor>
 	</contributors>
 
 	<scm>
