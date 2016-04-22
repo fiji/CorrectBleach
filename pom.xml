@@ -14,6 +14,8 @@
 
 	<name>plugins/CorrectBleach_.jar</name>
 	<description />
+	<url>http://imagej.net/Bleach_Correction</url>
+	<inceptionYear>2012</inceptionYear>
 
 	<developers>
 		<developer>
