@@ -15,6 +15,46 @@
 	<name>plugins/CorrectBleach_.jar</name>
 	<description />
 
+	<developers>
+		<developer>
+			<id>cmci</id>
+			<name>Kota Miura</name>
+			<url>http://imagej.net/User:Miura</url>
+			<roles>
+				<role>founder</role>
+				<role>lead</role>
+				<role>debugger</role>
+				<role>reviewer</roler>
+				<role>support</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>ctrueden</id>
+			<name>Curtis Rueden</name>
+			<url>http://imagej.net/User:Rueden</url>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>hinerm</id>
+			<name>Mark Hiner</name>
+			<url>http://imagej.net/User:Hinerm</url>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>Johannes Schindelin</name>
+			<url>http://imagej.net/User:Schindelin</url>
+			<properties><id>dscho</id></properties>
+			<roles><role>founder</role></roles>
+		</contributor>
+		<contributor><name>Jens Rietdorf</name>
+	</contributors>
+
 	<scm>
 		<connection>scm:git:git://github.com/fiji/CorrectBleach</connection>
 		<developerConnection>scm:git:git@github.com:fiji/CorrectBleach</developerConnection>
