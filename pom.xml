@@ -84,8 +84,8 @@
 		<url>https://github.com/fiji/CorrectBleach/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/job/CorrectBleach/</url>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/fiji/CorrectBleach</url>
 	</ciManagement>
 
 	<properties>
