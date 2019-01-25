@@ -15,7 +15,7 @@
 
 	<name>CorrectBleach</name>
 	<description>CorrectBleach plugin for Fiji.</description>
-	<url>http://imagej.net/Bleach_Correction</url>
+	<url>https://imagej.net/Bleach_Correction</url>
 	<inceptionYear>2012</inceptionYear>
 	<organization>
 		<name>Fiji</name>
@@ -33,7 +33,7 @@
 		<developer>
 			<id>cmci</id>
 			<name>Kota Miura</name>
-			<url>http://imagej.net/User:Miura</url>
+			<url>https://imagej.net/User:Miura</url>
 			<roles>
 				<role>founder</role>
 				<role>lead</role>
@@ -45,7 +45,7 @@
 		<developer>
 			<id>ctrueden</id>
 			<name>Curtis Rueden</name>
-			<url>http://imagej.net/User:Rueden</url>
+			<url>https://imagej.net/User:Rueden</url>
 			<roles>
 				<role>maintainer</role>
 			</roles>
@@ -54,14 +54,14 @@
 	<contributors>
 		<contributor>
 			<name>Johannes Schindelin</name>
-			<url>http://imagej.net/User:Schindelin</url>
+			<url>https://imagej.net/User:Schindelin</url>
 			<roles><role>founder</role></roles>
 			<properties><id>dscho</id></properties>
 		</contributor>
 		<contributor><name>Jens Rietdorf</name></contributor>
 		<contributor>
 			<name>Mark Hiner</name>
-			<url>http://imagej.net/User:Hinerm</url>
+			<url>https://imagej.net/User:Hinerm</url>
 			<properties><id>hinerm</id></properties>
 		</contributor>
 	</contributors>
@@ -101,7 +101,7 @@
 	<repositories>
 		<repository>
 			<id>imagej.public</id>
-			<url>http://maven.imagej.net/content/groups/public</url>
+			<url>https://maven.imagej.net/content/groups/public</url>
 		</repository>
 	</repositories>
 
