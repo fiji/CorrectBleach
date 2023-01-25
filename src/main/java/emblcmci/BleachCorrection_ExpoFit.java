@@ -29,6 +29,8 @@ import ij.plugin.frame.Fitter;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 
+import java.awt.GraphicsEnvironment;
+
 
 public class BleachCorrection_ExpoFit {
 	ImagePlus imp;
@@ -85,7 +87,9 @@ public class BleachCorrection_ExpoFit {
 
 		cf.setInitialParameters(fitparam);
 		cf.doFit(11); //
-		Fitter.plot(cf);
+		if (! GraphicsEnvironment.isHeadless()){
+			Fitter.plot(cf);
+		}
 		IJ.log(cf.getResultString());
 		return cf;
 	}
