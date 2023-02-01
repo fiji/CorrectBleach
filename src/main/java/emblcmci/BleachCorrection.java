@@ -46,6 +46,8 @@ public class BleachCorrection implements PlugInFilter {
 
 	public static final int SIMPLE_RATIO=0, EXPONENTIAL_FIT=1, HISTOGRAM_MATCHING=2;
 	ImagePlus imp;
+	// ImagePlus duplicate of the original, which will be applied with the correction. 
+	ImagePlus impdup;
 
 	String[] CorrectionMethods = { "Simple Ratio", "Exponential Fit", "Histogram Matching" };
 
@@ -65,6 +67,12 @@ public class BleachCorrection implements PlugInFilter {
 
 	@Override
 	public void run(ImageProcessor ip) {
+		ImagePlus impdup = doCorrection(imp);
+		impdup.show();
+	}
+
+	public ImagePlus doCorrection(ImagePlus imp){
+		this.imp = imp;
 		Roi curROI = imp.getRoi();
 		// System.out.println("in the method");
 		if (curROI != null) {
@@ -76,7 +84,7 @@ public class BleachCorrection implements PlugInFilter {
 			System.out.println("No ROI");
 		}
 		imp.killRoi();
-		ImagePlus impdup = new Duplicator().run(imp);
+		impdup = new Duplicator().run(imp);
 		if (curROI != null)
 			impdup.setRoi(curROI);
 		if (CorrectionMethod == SIMPLE_RATIO) { // Simple Ratio Method
@@ -106,7 +114,7 @@ public class BleachCorrection implements PlugInFilter {
 			// }
 			BCMH.doCorrection();
 		}
-		impdup.show();
+		return impdup;
 	}
 
 	/**
@@ -125,6 +133,9 @@ public class BleachCorrection implements PlugInFilter {
 
 	}
 
+	public ImagePlus getCorrectedImagePlus(){
+		return impdup;
+	}
 	public static int getCorrectionMethod() {
 		return CorrectionMethod;
 	}
