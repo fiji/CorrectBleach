@@ -44,6 +44,7 @@ import ij.process.ImageProcessor;
 
 public class BleachCorrection implements PlugInFilter {
 
+	public static final int SIMPLE_RATIO=0, EXPONENTIAL_FIT=1, HISTOGRAM_MATCHING=2;
 	ImagePlus imp;
 
 	String[] CorrectionMethods = { "Simple Ratio", "Exponential Fit", "Histogram Matching" };
@@ -51,7 +52,7 @@ public class BleachCorrection implements PlugInFilter {
 	/**
 	 * Correction Method 0: simple ratio 1: exponential fit 2: histogramMatch
 	 */
-	private static int CorrectionMethod = 0;
+	private static int CorrectionMethod = SIMPLE_RATIO;
 
 	@Override
 	public int setup(String arg, ImagePlus imp) {
@@ -78,7 +79,7 @@ public class BleachCorrection implements PlugInFilter {
 		ImagePlus impdup = new Duplicator().run(imp);
 		if (curROI != null)
 			impdup.setRoi(curROI);
-		if (CorrectionMethod == 0) { // Simple Ratio Method
+		if (CorrectionMethod == SIMPLE_RATIO) { // Simple Ratio Method
 			BleachCorrection_SimpleRatio BCSR = null;
 			if (curROI == null) {
 				BCSR = new BleachCorrection_SimpleRatio(impdup);
@@ -87,7 +88,7 @@ public class BleachCorrection implements PlugInFilter {
 			}
 			BCSR.showDialogAskBaseline();
 			BCSR.correctBleach();
-		} else if (CorrectionMethod == 1) { // Exponential Fitting Method
+		} else if (CorrectionMethod == EXPONENTIAL_FIT) { // Exponential Fitting Method
 			BleachCorrection_ExpoFit BCEF;
 			if (curROI == null) {
 				BCEF = new BleachCorrection_ExpoFit(impdup);
@@ -96,7 +97,7 @@ public class BleachCorrection implements PlugInFilter {
 			}
 
 			BCEF.core();
-		} else if (CorrectionMethod == 2) { // HIstogram Matching Method
+		} else if (CorrectionMethod == HISTOGRAM_MATCHING) { // HIstogram Matching Method
 			BleachCorrection_MH BCMH = null;
 			// if (curROI == null) {
 			BCMH = new BleachCorrection_MH(impdup);
