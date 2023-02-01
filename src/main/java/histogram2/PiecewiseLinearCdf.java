@@ -22,8 +22,8 @@ public class PiecewiseLinearCdf {
 	public PiecewiseLinearCdf(int K, int[] ik, double[] Pk) {
 		this.K = K; // number of intensity values (typ. 256)
 		int N = ik.length;
-		iArr = new int[N + 2];		// array of intensity values
-		pArr = new double[N + 2];	// array of cum. distribution values
+		iArr = new int[N + 2]; // array of intensity values
+		pArr = new double[N + 2]; // array of cum. distribution values
 		iArr[0] = -1;
 		pArr[0] = 0;
 		for (int i = 0; i < N; i++) {
@@ -73,13 +73,11 @@ public class PiecewiseLinearCdf {
 	// for testing only:
 	public double[] getPdf() {
 		double[] prob = new double[K];
-		prob[0] =  getCdf(0);
-		for (int i=1; i<K; i++) {
-			prob[i] =  getCdf(i) - getCdf(i-1);
+		prob[0] = getCdf(0);
+		for (int i = 1; i < K; i++) {
+			prob[i] = getCdf(i) - getCdf(i - 1);
 		}
 		return prob;
 	}
-
-
 
 }

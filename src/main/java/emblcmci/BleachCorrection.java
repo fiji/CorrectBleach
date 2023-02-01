@@ -42,93 +42,94 @@ import ij.plugin.Duplicator;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
-
 public class BleachCorrection implements PlugInFilter {
-		ImagePlus imp;
 
-		String[] CorrectionMethods =  { "Simple Ratio", "Exponential Fit", "Histogram Matching" };
+	ImagePlus imp;
 
-		/**Correction Method  0: simple ratio 1: exponential fit 2: histogramMatch
-		*/
-		private static int CorrectionMethod = 0;
+	String[] CorrectionMethods = { "Simple Ratio", "Exponential Fit", "Histogram Matching" };
 
-		@Override
-		public int setup(String arg, ImagePlus imp) {
-			this.imp = imp;
-			if (!showDialog()){
-					return 0;
-			}
-			return DOES_8G+DOES_16+STACK_REQUIRED;
+	/**
+	 * Correction Method 0: simple ratio 1: exponential fit 2: histogramMatch
+	 */
+	private static int CorrectionMethod = 0;
+
+	@Override
+	public int setup(String arg, ImagePlus imp) {
+		this.imp = imp;
+		if (!showDialog()) {
+			return 0;
 		}
+		return DOES_8G + DOES_16 + STACK_REQUIRED;
+	}
 
-		@Override
-		public void run(ImageProcessor ip) {
-			Roi curROI = imp.getRoi();
-			//System.out.println("in the method");
-			if (curROI != null) {
-				java.awt.Rectangle rect = curROI.getBounds();
-				System.out.println("(x,y)=(" + rect.x + ","	+ rect.y);
-				System.out.println("Width="+ rect.width);
-				System.out.println("Height="+ rect.height);
+	@Override
+	public void run(ImageProcessor ip) {
+		Roi curROI = imp.getRoi();
+		// System.out.println("in the method");
+		if (curROI != null) {
+			java.awt.Rectangle rect = curROI.getBounds();
+			System.out.println("(x,y)=(" + rect.x + "," + rect.y);
+			System.out.println("Width=" + rect.width);
+			System.out.println("Height=" + rect.height);
+		} else {
+			System.out.println("No ROI");
+		}
+		imp.killRoi();
+		ImagePlus impdup = new Duplicator().run(imp);
+		if (curROI != null)
+			impdup.setRoi(curROI);
+		if (CorrectionMethod == 0) { // Simple Ratio Method
+			BleachCorrection_SimpleRatio BCSR = null;
+			if (curROI == null) {
+				BCSR = new BleachCorrection_SimpleRatio(impdup);
 			} else {
-				System.out.println("No ROI");
+				BCSR = new BleachCorrection_SimpleRatio(impdup, curROI);
 			}
-			imp.killRoi();
-			ImagePlus impdup = new Duplicator().run(imp);
-			if (curROI != null) impdup.setRoi(curROI);
-			if 		(CorrectionMethod == 0){			//Simple Ratio Method
-				BleachCorrection_SimpleRatio BCSR = null;
-				if (curROI == null) {
-					BCSR = new BleachCorrection_SimpleRatio(impdup);
-				} else {
-					BCSR = new BleachCorrection_SimpleRatio(impdup, curROI);
-				}
-				BCSR.showDialogAskBaseline();
-				BCSR.correctBleach();
+			BCSR.showDialogAskBaseline();
+			BCSR.correctBleach();
+		} else if (CorrectionMethod == 1) { // Exponential Fitting Method
+			BleachCorrection_ExpoFit BCEF;
+			if (curROI == null) {
+				BCEF = new BleachCorrection_ExpoFit(impdup);
+			} else {
+				BCEF = new BleachCorrection_ExpoFit(impdup, curROI);
 			}
-			else if (CorrectionMethod == 1){	//Exponential Fitting Method
-				BleachCorrection_ExpoFit BCEF;
-				if (curROI == null) {
-					BCEF = new BleachCorrection_ExpoFit(impdup);
-				} else {
-					BCEF = new BleachCorrection_ExpoFit(impdup, curROI);
-				}
 
-				BCEF.core();
-			}
-			else if (CorrectionMethod == 2){	//HIstogram Matching Method
-				BleachCorrection_MH BCMH = null;
-				//if (curROI == null) {
-					BCMH = new BleachCorrection_MH(impdup);
-				//} else {
-				//	BCMH = new BleachCorrection_MH(impdup, curROI);
-				//}
-				BCMH.doCorrection();
-			}
-			impdup.show();
+			BCEF.core();
+		} else if (CorrectionMethod == 2) { // HIstogram Matching Method
+			BleachCorrection_MH BCMH = null;
+			// if (curROI == null) {
+			BCMH = new BleachCorrection_MH(impdup);
+			// } else {
+			// BCMH = new BleachCorrection_MH(impdup, curROI);
+			// }
+			BCMH.doCorrection();
 		}
+		impdup.show();
+	}
 
-		/**Dialog to ask which method to be used for Bleach Correction
-		 *
-		 * @return
-		 */
-		public boolean showDialog()	{
-			GenericDialog gd = new GenericDialog("Bleach Correction");
-			gd.addChoice("Correction Method :", CorrectionMethods , CorrectionMethods[CorrectionMethod]);
-			gd.showDialog();
-			if (gd.wasCanceled())
-				return false;
-			BleachCorrection.setCorrectionMethod(gd.getNextChoiceIndex());
-			return true;
+	/**
+	 * Dialog to ask which method to be used for Bleach Correction
+	 *
+	 * @return
+	 */
+	public boolean showDialog() {
+		GenericDialog gd = new GenericDialog("Bleach Correction");
+		gd.addChoice("Correction Method :", CorrectionMethods, CorrectionMethods[CorrectionMethod]);
+		gd.showDialog();
+		if (gd.wasCanceled())
+			return false;
+		BleachCorrection.setCorrectionMethod(gd.getNextChoiceIndex());
+		return true;
 
-		}
+	}
 
-		public static int getCorrectionMethod() {
-			return CorrectionMethod;
-		}
+	public static int getCorrectionMethod() {
+		return CorrectionMethod;
+	}
 
-		public static void setCorrectionMethod(int correctionMethod) {
-			CorrectionMethod = correctionMethod;
-		}
+	public static void setCorrectionMethod(int correctionMethod) {
+		CorrectionMethod = correctionMethod;
+	}
 
 }

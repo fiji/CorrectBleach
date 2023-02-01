@@ -1,4 +1,5 @@
 package emblcmci;
+
 /**
  * Algorithm "Match_To_Image_Histogram.java"
  * (see http://www.imagingbook.com)
@@ -38,6 +39,7 @@ import ij.process.ImageProcessor;
 public class BleachCorrection_MH {// implements PlugIn {
 	ImagePlus imp;
 	Roi curROI = null;
+
 	/**
 	 * @param imp
 	 */
@@ -45,8 +47,11 @@ public class BleachCorrection_MH {// implements PlugIn {
 		super();
 		this.imp = imp;
 	}
-	/** This constructor might not going to be used.
-	 * 	Does not mean much to select a spedific region for the reference histogram.
+
+	/**
+	 * This constructor might not going to be used.
+	 * Does not mean much to select a spedific region for the reference histogram.
+	 * 
 	 * @param imp
 	 * @param curROI
 	 */
@@ -56,23 +61,26 @@ public class BleachCorrection_MH {// implements PlugIn {
 		this.curROI = curROI;
 	}
 
-	public void doCorrection(){
+	public void doCorrection() {
 
 		int histbinnum = 0;
-		if (imp.getBitDepth()==8) histbinnum = 256;
-			else if (imp.getBitDepth()==16) histbinnum = 65536;//65535;
+		if (imp.getBitDepth() == 8)
+			histbinnum = 256;
+		else if (imp.getBitDepth() == 16)
+			histbinnum = 65536;// 65535;
 
 		boolean is3DT = false;
 		int zframes = 1;
 		int timeframes = 1;
 		int[] impdimA = imp.getDimensions();
-		IJ.log("slices"+Integer.toString(impdimA[3])+"  -- frames"+Integer.toString(impdimA[4]));
-		//IJ.log(Integer.toString(imp.getNChannels())+":"+Integer.toString(imp.getNSlices())+":"+ Integer.toString(imp.getNFrames()));
-		if (impdimA[3]>1 && impdimA[4]>1){	// if slices and frames are both more than 1
-			is3DT =true;
+		IJ.log("slices" + Integer.toString(impdimA[3]) + "  -- frames" + Integer.toString(impdimA[4]));
+		// IJ.log(Integer.toString(imp.getNChannels())+":"+Integer.toString(imp.getNSlices())+":"+
+		// Integer.toString(imp.getNFrames()));
+		if (impdimA[3] > 1 && impdimA[4] > 1) { // if slices and frames are both more than 1
+			is3DT = true;
 			zframes = impdimA[3];
 			timeframes = impdimA[4];
-			if ((zframes*timeframes) != imp.getStackSize()){
+			if ((zframes * timeframes) != imp.getStackSize()) {
 				IJ.showMessage("slice and time frames do not match with the length of the stack. Please correct!");
 				return;
 			}
@@ -85,58 +93,59 @@ public class BleachCorrection_MH {// implements PlugIn {
 		int[] hA = new int[histbinnum];
 		int[] hB = new int[histbinnum];
 		int[] F = new int[histbinnum];
-		int[] histB = null;	//for each slice
+		int[] histB = null; // for each slice
 		int[] histA = null;
-		//IJ.log(Integer.toString(stack.getSize()));
-		int i =0;
-		int j =0;
-		int k =0;
-		/* in case of 3D, stack histogram of the first time point is measured, and then
-		 *  this stack histogram is used as reference (hB) for the rest of time points.
+		// IJ.log(Integer.toString(stack.getSize()));
+		int i = 0;
+		int j = 0;
+		int k = 0;
+		/*
+		 * in case of 3D, stack histogram of the first time point is measured, and then
+		 * this stack histogram is used as reference (hB) for the rest of time points.
 		 */
-		if (is3DT){
-			//should implement here,
-			for (i =0; i< timeframes; i++){
-				if (i==0){
-					for (j=0; j<zframes; j++){
-						ipB = stack.getProcessor(i*zframes+j+1);
+		if (is3DT) {
+			// should implement here,
+			for (i = 0; i < timeframes; i++) {
+				if (i == 0) {
+					for (j = 0; j < zframes; j++) {
+						ipB = stack.getProcessor(i * zframes + j + 1);
 						histB = ipB.getHistogram();
-						for (k=0; k<histbinnum; k++) hB[k] += histB[k];
+						for (k = 0; k < histbinnum; k++)
+							hB[k] += histB[k];
 					}
 				} else {
-					for (k=0; k<histbinnum; k++) hA[k] = 0;
-					for (j=0; j<zframes; j++){
-						ipA = stack.getProcessor(i*zframes+j+1);
+					for (k = 0; k < histbinnum; k++)
+						hA[k] = 0;
+					for (j = 0; j < zframes; j++) {
+						ipA = stack.getProcessor(i * zframes + j + 1);
 						histA = ipA.getHistogram();
-						for (k=0; k<histbinnum; k++) hA[k] += histA[k];
+						for (k = 0; k < histbinnum; k++)
+							hA[k] += histA[k];
 					}
 					F = m.matchHistograms(hA, hB);
-					for (j=0; j<zframes; j++){
-						ipA = stack.getProcessor(i*zframes+j+1);
+					for (j = 0; j < zframes; j++) {
+						ipA = stack.getProcessor(i * zframes + j + 1);
 						ipA.applyTable(F);
 					}
-					IJ.log("corrected time point: "+Integer.toString(i+1));
+					IJ.log("corrected time point: " + Integer.toString(i + 1));
 				}
 			}
 
-		} else {		//2D case.
-			for (i=0; i<stack.getSize(); i++){
-				if (i==0) {
-					ipB = stack.getProcessor(i+1);
+		} else { // 2D case.
+			for (i = 0; i < stack.getSize(); i++) {
+				if (i == 0) {
+					ipB = stack.getProcessor(i + 1);
 					hB = ipB.getHistogram();
-				}
-				else {
-					ipA = stack.getProcessor(i+1);
+				} else {
+					ipA = stack.getProcessor(i + 1);
 					hA = ipA.getHistogram();
 					F = m.matchHistograms(hA, hB);
 					ipA.applyTable(F);
-					IJ.log("corrected frame: "+Integer.toString(i+1));
+					IJ.log("corrected frame: " + Integer.toString(i + 1));
 				}
 			}
 		}
-		//imp.show();
+		// imp.show();
 	}
-
-
 
 }
