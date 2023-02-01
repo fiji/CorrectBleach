@@ -35,7 +35,7 @@ public class BleachCorrection_ExpoFit {
 	ImagePlus imp;
 	boolean is3DT = false;
 	Roi curROI = null;
-
+	boolean doHeadLess = false;
 	/**
 	 * @param imp
 	 */
@@ -48,6 +48,10 @@ public class BleachCorrection_ExpoFit {
 		super();
 		this.imp = imp;
 		this.curROI = curROI;
+	}
+
+	public void setHeadlessProcessing(boolean headless){
+		doHeadLess = headless;
 	}
 
 	/**
@@ -89,8 +93,10 @@ public class BleachCorrection_ExpoFit {
 
 		cf.setInitialParameters(fitparam);
 		cf.doFit(11); //
-		if (!GraphicsEnvironment.isHeadless()) {
-			Fitter.plot(cf);
+		IJ.log("without GUI:" + GraphicsEnvironment.isHeadless());
+		IJ.log("headless settings:" +  doHeadLess);		
+		if ((!GraphicsEnvironment.isHeadless()) && (doHeadLess != true)){
+				Fitter.plot(cf);
 		}
 		IJ.log(cf.getResultString());
 		return cf;
@@ -142,7 +148,9 @@ public class BleachCorrection_ExpoFit {
 		cf.setInitialParameters(fitparam);
 
 		cf.doFit(11); //
-		Fitter.plot(cf);
+		if ((!GraphicsEnvironment.isHeadless()) || (doHeadLess != true)) {
+			Fitter.plot(cf);
+		}
 		IJ.log(cf.getResultString());
 		return cf;
 	}

@@ -109,7 +109,7 @@ public class BleachCorrection implements PlugInFilter {
 			} else {
 				BCEF = new BleachCorrection_ExpoFit(impdup, curROI);
 			}
-
+			BCEF.setHeadlessProcessing(doHeadLess);
 			BCEF.core();
 		} else if (CorrectionMethod == HISTOGRAM_MATCHING) { // HIstogram Matching Method
 			BleachCorrection_MH BCMH = null;
