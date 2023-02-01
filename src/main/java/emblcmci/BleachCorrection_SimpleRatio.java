@@ -74,6 +74,9 @@ public class BleachCorrection_SimpleRatio {
 		return true;
 
 	}
+	public void setSimpleRatioBaseline(double baseline){
+		baselineInt = baseline;
+	}
 
 	public ImagePlus correctBleach() {
 

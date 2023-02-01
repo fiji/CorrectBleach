@@ -45,6 +45,9 @@ import ij.process.ImageProcessor;
 public class BleachCorrection implements PlugInFilter {
 
 	public static final int SIMPLE_RATIO=0, EXPONENTIAL_FIT=1, HISTOGRAM_MATCHING=2;
+	boolean doHeadLess = false;
+	double simpleratio_baseline =0.0; //default value
+
 	ImagePlus imp;
 	// ImagePlus duplicate of the original, which will be applied with the correction. 
 	ImagePlus impdup;
@@ -94,7 +97,10 @@ public class BleachCorrection implements PlugInFilter {
 			} else {
 				BCSR = new BleachCorrection_SimpleRatio(impdup, curROI);
 			}
-			BCSR.showDialogAskBaseline();
+			if (!doHeadLess)
+				BCSR.showDialogAskBaseline();
+			else
+				BCSR.setSimpleRatioBaseline(simpleratio_baseline);
 			BCSR.correctBleach();
 		} else if (CorrectionMethod == EXPONENTIAL_FIT) { // Exponential Fitting Method
 			BleachCorrection_ExpoFit BCEF;
@@ -142,6 +148,12 @@ public class BleachCorrection implements PlugInFilter {
 
 	public static void setCorrectionMethod(int correctionMethod) {
 		CorrectionMethod = correctionMethod;
+	}
+	public void setHeadlessProcessing(boolean headless){
+		doHeadLess = headless;
+	}
+	public void setSimpleRatioBaseline(double baseline){
+		simpleratio_baseline = baseline;
 	}
 
 }
