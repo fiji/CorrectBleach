@@ -42,93 +42,120 @@ import ij.plugin.Duplicator;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
-
 public class BleachCorrection implements PlugInFilter {
-		ImagePlus imp;
 
-		String[] CorrectionMethods =  { "Simple Ratio", "Exponential Fit", "Histogram Matching" };
+	public static final int SIMPLE_RATIO=0, EXPONENTIAL_FIT=1, HISTOGRAM_MATCHING=2;
+	boolean doHeadLess = false;
+	double simpleratio_baseline =0.0; //default value
 
-		/**Correction Method  0: simple ratio 1: exponential fit 2: histogramMatch
-		*/
-		private static int CorrectionMethod = 0;
+	ImagePlus imp;
+	// ImagePlus duplicate of the original, which will be applied with the correction. 
+	ImagePlus impdup;
 
-		@Override
-		public int setup(String arg, ImagePlus imp) {
-			this.imp = imp;
-			if (!showDialog()){
-					return 0;
-			}
-			return DOES_8G+DOES_16+STACK_REQUIRED;
+	String[] CorrectionMethods = { "Simple Ratio", "Exponential Fit", "Histogram Matching" };
+
+	/**
+	 * Correction Method 0: simple ratio 1: exponential fit 2: histogramMatch
+	 */
+	private static int CorrectionMethod = SIMPLE_RATIO;
+
+	@Override
+	public int setup(String arg, ImagePlus imp) {
+		this.imp = imp;
+		if (!showDialog()) {
+			return 0;
 		}
+		return DOES_8G + DOES_16 + STACK_REQUIRED;
+	}
 
-		@Override
-		public void run(ImageProcessor ip) {
-			Roi curROI = imp.getRoi();
-			//System.out.println("in the method");
-			if (curROI != null) {
-				java.awt.Rectangle rect = curROI.getBounds();
-				System.out.println("(x,y)=(" + rect.x + ","	+ rect.y);
-				System.out.println("Width="+ rect.width);
-				System.out.println("Height="+ rect.height);
+	@Override
+	public void run(ImageProcessor ip) {
+		ImagePlus impdup = doCorrection(imp);
+		impdup.show();
+	}
+
+	public ImagePlus doCorrection(ImagePlus imp){
+		this.imp = imp;
+		Roi curROI = imp.getRoi();
+		// System.out.println("in the method");
+		if (curROI != null) {
+			java.awt.Rectangle rect = curROI.getBounds();
+			System.out.println("(x,y)=(" + rect.x + "," + rect.y);
+			System.out.println("Width=" + rect.width);
+			System.out.println("Height=" + rect.height);
+		} else {
+			System.out.println("No ROI");
+		}
+		imp.killRoi();
+		impdup = new Duplicator().run(imp);
+		if (curROI != null)
+			impdup.setRoi(curROI);
+		if (CorrectionMethod == SIMPLE_RATIO) { // Simple Ratio Method
+			BleachCorrection_SimpleRatio BCSR = null;
+			if (curROI == null) {
+				BCSR = new BleachCorrection_SimpleRatio(impdup);
 			} else {
-				System.out.println("No ROI");
+				BCSR = new BleachCorrection_SimpleRatio(impdup, curROI);
 			}
-			imp.killRoi();
-			ImagePlus impdup = new Duplicator().run(imp);
-			if (curROI != null) impdup.setRoi(curROI);
-			if 		(CorrectionMethod == 0){			//Simple Ratio Method
-				BleachCorrection_SimpleRatio BCSR = null;
-				if (curROI == null) {
-					BCSR = new BleachCorrection_SimpleRatio(impdup);
-				} else {
-					BCSR = new BleachCorrection_SimpleRatio(impdup, curROI);
-				}
+			if (!doHeadLess)
 				BCSR.showDialogAskBaseline();
-				BCSR.correctBleach();
+			else
+				BCSR.setSimpleRatioBaseline(simpleratio_baseline);
+			BCSR.correctBleach();
+		} else if (CorrectionMethod == EXPONENTIAL_FIT) { // Exponential Fitting Method
+			BleachCorrection_ExpoFit BCEF;
+			if (curROI == null) {
+				BCEF = new BleachCorrection_ExpoFit(impdup);
+			} else {
+				BCEF = new BleachCorrection_ExpoFit(impdup, curROI);
 			}
-			else if (CorrectionMethod == 1){	//Exponential Fitting Method
-				BleachCorrection_ExpoFit BCEF;
-				if (curROI == null) {
-					BCEF = new BleachCorrection_ExpoFit(impdup);
-				} else {
-					BCEF = new BleachCorrection_ExpoFit(impdup, curROI);
-				}
-
-				BCEF.core();
-			}
-			else if (CorrectionMethod == 2){	//HIstogram Matching Method
-				BleachCorrection_MH BCMH = null;
-				//if (curROI == null) {
-					BCMH = new BleachCorrection_MH(impdup);
-				//} else {
-				//	BCMH = new BleachCorrection_MH(impdup, curROI);
-				//}
-				BCMH.doCorrection();
-			}
-			impdup.show();
+			BCEF.setHeadlessProcessing(doHeadLess);
+			BCEF.core();
+		} else if (CorrectionMethod == HISTOGRAM_MATCHING) { // HIstogram Matching Method
+			BleachCorrection_MH BCMH = null;
+			// if (curROI == null) {
+			BCMH = new BleachCorrection_MH(impdup);
+			// } else {
+			// BCMH = new BleachCorrection_MH(impdup, curROI);
+			// }
+			BCMH.doCorrection();
 		}
+		return impdup;
+	}
 
-		/**Dialog to ask which method to be used for Bleach Correction
-		 *
-		 * @return
-		 */
-		public boolean showDialog()	{
-			GenericDialog gd = new GenericDialog("Bleach Correction");
-			gd.addChoice("Correction Method :", CorrectionMethods , CorrectionMethods[CorrectionMethod]);
-			gd.showDialog();
-			if (gd.wasCanceled())
-				return false;
-			BleachCorrection.setCorrectionMethod(gd.getNextChoiceIndex());
-			return true;
+	/**
+	 * Dialog to ask which method to be used for Bleach Correction
+	 *
+	 * @return
+	 */
+	public boolean showDialog() {
+		GenericDialog gd = new GenericDialog("Bleach Correction");
+		gd.addChoice("Correction Method :", CorrectionMethods, CorrectionMethods[CorrectionMethod]);
+		gd.addMessage("version 2.0.4");
+		gd.addMessage("Citation doi: 10.12688/f1000research.27171.1");
+		gd.showDialog();
+		if (gd.wasCanceled())
+			return false;
+		BleachCorrection.setCorrectionMethod(gd.getNextChoiceIndex());
+		return true;
 
-		}
+	}
 
-		public static int getCorrectionMethod() {
-			return CorrectionMethod;
-		}
+	public ImagePlus getCorrectedImagePlus(){
+		return impdup;
+	}
+	public static int getCorrectionMethod() {
+		return CorrectionMethod;
+	}
 
-		public static void setCorrectionMethod(int correctionMethod) {
-			CorrectionMethod = correctionMethod;
-		}
+	public static void setCorrectionMethod(int correctionMethod) {
+		CorrectionMethod = correctionMethod;
+	}
+	public void setHeadlessProcessing(boolean headless){
+		doHeadLess = headless;
+	}
+	public void setSimpleRatioBaseline(double baseline){
+		simpleratio_baseline = baseline;
+	}
 
 }
