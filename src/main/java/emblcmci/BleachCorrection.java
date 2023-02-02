@@ -41,6 +41,7 @@ import ij.gui.Roi;
 import ij.plugin.Duplicator;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
+import org.scijava.util.VersionUtils;
 
 public class BleachCorrection implements PlugInFilter {
 
@@ -131,7 +132,7 @@ public class BleachCorrection implements PlugInFilter {
 	public boolean showDialog() {
 		GenericDialog gd = new GenericDialog("Bleach Correction");
 		gd.addChoice("Correction Method :", CorrectionMethods, CorrectionMethods[CorrectionMethod]);
-		gd.addMessage("version 2.0.4");
+		gd.addMessage("version " + VersionUtils.getVersion(getClass()));
 		gd.addMessage("Citation doi: 10.12688/f1000research.27171.1");
 		gd.showDialog();
 		if (gd.wasCanceled())
