@@ -131,6 +131,8 @@ public class BleachCorrection implements PlugInFilter {
 	public boolean showDialog() {
 		GenericDialog gd = new GenericDialog("Bleach Correction");
 		gd.addChoice("Correction Method :", CorrectionMethods, CorrectionMethods[CorrectionMethod]);
+		gd.addMessage("version 2.0.4");
+		gd.addMessage("Citation doi: 10.12688/f1000research.27171.1");
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
