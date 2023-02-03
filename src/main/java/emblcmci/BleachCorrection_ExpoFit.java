@@ -23,6 +23,7 @@ package emblcmci;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.NewImage;
 import ij.gui.Roi;
 import ij.measure.CurveFitter;
 import ij.plugin.frame.Fitter;
@@ -30,6 +31,7 @@ import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 
 import java.awt.GraphicsEnvironment;
+import java.util.ArrayList;
 
 public class BleachCorrection_ExpoFit {
 	ImagePlus imp;
@@ -217,4 +219,36 @@ public class BleachCorrection_ExpoFit {
 		}
 	}
 
+	public static void main(String[] args) {
+		// ImagePlus imp = new
+		// ImagePlus("/Users/miura/Dropbox/sampleImages/web_sampleimages/yeastNucleus2DT.tif");
+		// imp.show();
+		int frames = 50;
+		ImagePlus imp = NewImage.createByteImage("testBleach",
+				25, 25, frames, NewImage.FILL_BLACK);
+		BleachCorrection_ExpoFit bce = new BleachCorrection_ExpoFit(imp);
+		int offset = 10;
+		int amp = 150;
+		double exp = 0.05;
+		ArrayList<Integer> orgintA = new ArrayList<Integer>();
+		for (int f = 0; f < frames; f++) {
+			double intensity = bce.calcExponentialOffset(amp, exp, offset, f);
+			ImageProcessor ip = imp.getStack().getProcessor(f + 1);
+			int grayscale = (int) intensity;
+			ip.setColor(grayscale);
+			ip.fill();
+			orgintA.add(grayscale);
+		}
+		ImagePlus dupimp = imp.duplicate();
+		bce = new BleachCorrection_ExpoFit(dupimp);
+		bce.core();
+		dupimp.show();
+		IJ.log("Original Int" + "\t" + "Corrected Int");
+		for (int f = 0; f < frames; f++) {
+			double orgstatMean = imp.getStack().getProcessor(f + 1).getStatistics().mean;
+			double corstatMean = imp.getStack().getProcessor(f + 1).getStatistics().mean;
+			IJ.log(String.valueOf(orgstatMean) + "\t" + String.valueOf(corstatMean));
+		}
+
+	}
 }
