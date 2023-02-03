@@ -20,7 +20,7 @@ public class HistogramMatcher {
 	// hR ... reference histogram
 	// returns the mapping function F() to be applied to image I_A
 
-	public int[] matchHistograms (int[] hA, int[] hR) {
+	public int[] matchHistograms(int[] hA, int[] hR) {
 		int K = hA.length;
 		double[] PA = Util.Cdf(hA); // get CDF of histogram hA
 		double[] PR = Util.Cdf(hR); // get CDF of histogram hR

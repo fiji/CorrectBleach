@@ -47,11 +47,13 @@ public class BleachCorrection_SimpleRatio {
 		super();
 		this.imp = imp;
 	}
+
 	public BleachCorrection_SimpleRatio(ImagePlus imp, double baselineInt) {
 		super();
 		this.imp = imp;
 		this.baselineInt = baselineInt;
 	}
+
 	/**
 	 * @param imp
 	 * @param curROI
@@ -62,9 +64,9 @@ public class BleachCorrection_SimpleRatio {
 		this.curROI = curROI;
 	}
 
-	public boolean showDialogAskBaseline()	{
+	public boolean showDialogAskBaseline() {
 		GenericDialog gd = new GenericDialog("Bleach Correction");
-		gd.addNumericField("Background Intensity", baselineInt, 1) ;
+		gd.addNumericField("Background Intensity", baselineInt, 1);
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
@@ -72,20 +74,24 @@ public class BleachCorrection_SimpleRatio {
 		return true;
 
 	}
+	public void setSimpleRatioBaseline(double baseline){
+		baselineInt = baseline;
+	}
 
-	public ImagePlus correctBleach(){
+	public ImagePlus correctBleach() {
 
 		boolean is3DT = false;
 		int zframes = 1;
 		int timeframes = 1;
 		int[] impdimA = imp.getDimensions();
-		IJ.log("slices"+Integer.toString(impdimA[3])+"  -- frames"+Integer.toString(impdimA[4]));
-		//IJ.log(Integer.toString(imp.getNChannels())+":"+Integer.toString(imp.getNSlices())+":"+ Integer.toString(imp.getNFrames()));
-		if (impdimA[3]>1 && impdimA[4]>1){	// if slices and frames are both more than 1
-			is3DT =true;
+		IJ.log("slices" + Integer.toString(impdimA[3]) + "  -- frames" + Integer.toString(impdimA[4]));
+		// IJ.log(Integer.toString(imp.getNChannels())+":"+Integer.toString(imp.getNSlices())+":"+
+		// Integer.toString(imp.getNFrames()));
+		if (impdimA[3] > 1 && impdimA[4] > 1) { // if slices and frames are both more than 1
+			is3DT = true;
 			zframes = impdimA[3];
 			timeframes = impdimA[4];
-			if ((zframes*timeframes) != imp.getStackSize()){
+			if ((zframes * timeframes) != imp.getStackSize()) {
 				IJ.showMessage("slice and time frames do not match with the length of the stack. Please correct!");
 				return null;
 			}
@@ -95,13 +101,14 @@ public class BleachCorrection_SimpleRatio {
 		ImageProcessor curip = null;
 		double currentInt = 0.0;
 		double ratio = 1.0;
-		if (curROI == null) curROI = new Roi(0, 0, imp.getWidth(), imp.getHeight());
+		if (curROI == null)
+			curROI = new Roi(0, 0, imp.getWidth(), imp.getHeight());
 		if (!is3DT) {
-			for (int i = 0; i < imp.getStackSize(); i++){
-				curip = imp.getImageStack().getProcessor(i+1);
+			for (int i = 0; i < imp.getStackSize(); i++) {
+				curip = imp.getImageStack().getProcessor(i + 1);
 				curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
 				curip.add(-1 * baselineInt);
-        
+
 				curip.setRoi(curROI);
 				imgstat = curip.getStatistics();
 
@@ -113,12 +120,12 @@ public class BleachCorrection_SimpleRatio {
 					currentInt = imgstat.mean;
 					ratio = referenceInt / currentInt;
 					curip.multiply(ratio);
-					IJ.log("frame"+ Integer.toString(i+1) + "mean int="+ currentInt +  " ratio=" + ratio);
+					IJ.log("frame" + Integer.toString(i + 1) + "mean int=" + currentInt + " ratio=" + ratio);
 				}
 
 			}
 		} else {
-			for (int i = 0; i < timeframes; i++){
+			for (int i = 0; i < timeframes; i++) {
 				currentInt = 0.0;
 				for (int j = 0; j < zframes; j++) {
 					curip = imp.getImageStack().getProcessor(i * zframes + j + 1);
@@ -133,7 +140,7 @@ public class BleachCorrection_SimpleRatio {
 
 				if (i == 0) {
 					referenceInt = currentInt;
-					IJ.log("ref intensity=" + referenceInt );
+					IJ.log("ref intensity=" + referenceInt);
 				} else {
 					ratio = referenceInt / currentInt;
 					for (int j = 0; j < zframes; j++) {
@@ -141,7 +148,7 @@ public class BleachCorrection_SimpleRatio {
 						curip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
 						curip.multiply(ratio);
 					}
-					IJ.log("frame"+ Integer.toString(i+1) + "mean int="+ currentInt +  " ratio=" + ratio);
+					IJ.log("frame" + Integer.toString(i + 1) + "mean int=" + currentInt + " ratio=" + ratio);
 				}
 			}
 		}
