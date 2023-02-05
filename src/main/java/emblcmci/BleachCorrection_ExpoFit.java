@@ -212,7 +212,7 @@ public class BleachCorrection_ExpoFit {
 				for (int j = 0; j < zframes; j++) {
 					curip = imp.getImageStack().getProcessor(i * zframes + j + 1);
 					ratio = calcExponentialOffset(res_a, res_b, res_c, 0.0)
-							/ calcExponentialOffset(res_a, res_b, res_c, (double) (i + 1));
+							/ calcExponentialOffset(res_a, res_b, res_c, (double) ( i ));
 					curip.multiply(ratio);
 				}
 			}
@@ -222,14 +222,16 @@ public class BleachCorrection_ExpoFit {
 
 			for (int i = 0; i < imp.getStackSize(); i++) {
 				curip = imp.getImageStack().getProcessor(i + 1);
+
 				double orgint = curip.getStatistics().mean;
 				
 				ratio = calcExponentialOffset(res_a, res_b, res_c, 0.0)
-						/ calcExponentialOffset(res_a, res_b, res_c, (double) (i + 1));
+						/ calcExponentialOffset(res_a, res_b, res_c, (double) ( i ));
 				curip.multiply(ratio);
 
 				double corint = curip.getStatistics().mean;
 
+				//for testing
 				if (verbose) {
 					String monitor = Double.toString(orgint) + "\t" + Double.toString(corint) + "\t" +
 							Double.toString(ratio);
