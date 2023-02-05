@@ -38,6 +38,8 @@ public class BleachCorrection_ExpoFit {
 	boolean is3DT = false;
 	Roi curROI = null;
 	boolean doHeadLess = false;
+	boolean verbose = false;
+
 	/**
 	 * @param imp
 	 */
@@ -52,8 +54,12 @@ public class BleachCorrection_ExpoFit {
 		this.curROI = curROI;
 	}
 
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
+	}
+
 	public void setHeadlessProcessing(boolean headless){
-		doHeadLess = headless;
+		this.doHeadLess = headless;
 	}
 
 	/**
@@ -95,8 +101,9 @@ public class BleachCorrection_ExpoFit {
 
 		cf.setInitialParameters(fitparam);
 		cf.doFit(11); //
-		IJ.log("without GUI:" + GraphicsEnvironment.isHeadless());
-		IJ.log("headless settings:" +  doHeadLess);		
+
+		if (verbose) IJ.log("without GUI:" + GraphicsEnvironment.isHeadless());
+		if (verbose) IJ.log("headless settings:" +  doHeadLess);		
 		if ((!GraphicsEnvironment.isHeadless()) && (doHeadLess != true)){
 				Fitter.plot(cf);
 		}
@@ -210,19 +217,30 @@ public class BleachCorrection_ExpoFit {
 				}
 			}
 		} else {
+			if (verbose)
+				IJ.log("Original Int" + "\t" + "Corrected Int"+ "\t" + "Ratio");
+
 			for (int i = 0; i < imp.getStackSize(); i++) {
 				curip = imp.getImageStack().getProcessor(i + 1);
+				double orgint = curip.getStatistics().mean;
+				
 				ratio = calcExponentialOffset(res_a, res_b, res_c, 0.0)
 						/ calcExponentialOffset(res_a, res_b, res_c, (double) (i + 1));
 				curip.multiply(ratio);
+
+				double corint = curip.getStatistics().mean;
+
+				if (verbose) {
+					String monitor = Double.toString(orgint) + "\t" + Double.toString(corint) + "\t" +
+							Double.toString(ratio);
+					IJ.log(monitor);
+				}
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		// ImagePlus imp = new
-		// ImagePlus("/Users/miura/Dropbox/sampleImages/web_sampleimages/yeastNucleus2DT.tif");
-		// imp.show();
+		// test using synthetic bleaching
 		int frames = 50;
 		ImagePlus imp = NewImage.createByteImage("testBleach",
 				25, 25, frames, NewImage.FILL_BLACK);
@@ -241,12 +259,13 @@ public class BleachCorrection_ExpoFit {
 		}
 		ImagePlus dupimp = imp.duplicate();
 		bce = new BleachCorrection_ExpoFit(dupimp);
+		bce.setVerbose(true);		
 		bce.core();
 		dupimp.show();
 		IJ.log("Original Int" + "\t" + "Corrected Int");
 		for (int f = 0; f < frames; f++) {
 			double orgstatMean = imp.getStack().getProcessor(f + 1).getStatistics().mean;
-			double corstatMean = imp.getStack().getProcessor(f + 1).getStatistics().mean;
+			double corstatMean = dupimp.getStack().getProcessor(f + 1).getStatistics().mean;
 			IJ.log(String.valueOf(orgstatMean) + "\t" + String.valueOf(corstatMean));
 		}
 
