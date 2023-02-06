@@ -23,6 +23,7 @@ package emblcmci;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.NewImage;
 import ij.gui.Roi;
 import ij.measure.CurveFitter;
 import ij.plugin.frame.Fitter;
@@ -30,12 +31,15 @@ import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 
 import java.awt.GraphicsEnvironment;
+import java.util.ArrayList;
 
 public class BleachCorrection_ExpoFit {
 	ImagePlus imp;
 	boolean is3DT = false;
 	Roi curROI = null;
 	boolean doHeadLess = false;
+	boolean verbose = false;
+
 	/**
 	 * @param imp
 	 */
@@ -50,8 +54,12 @@ public class BleachCorrection_ExpoFit {
 		this.curROI = curROI;
 	}
 
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
+	}
+
 	public void setHeadlessProcessing(boolean headless){
-		doHeadLess = headless;
+		this.doHeadLess = headless;
 	}
 
 	/**
@@ -93,8 +101,9 @@ public class BleachCorrection_ExpoFit {
 
 		cf.setInitialParameters(fitparam);
 		cf.doFit(11); //
-		IJ.log("without GUI:" + GraphicsEnvironment.isHeadless());
-		IJ.log("headless settings:" +  doHeadLess);		
+
+		if (verbose) IJ.log("without GUI:" + GraphicsEnvironment.isHeadless());
+		if (verbose) IJ.log("headless settings:" +  doHeadLess);		
 		if ((!GraphicsEnvironment.isHeadless()) && (doHeadLess != true)){
 				Fitter.plot(cf);
 		}
@@ -203,18 +212,64 @@ public class BleachCorrection_ExpoFit {
 				for (int j = 0; j < zframes; j++) {
 					curip = imp.getImageStack().getProcessor(i * zframes + j + 1);
 					ratio = calcExponentialOffset(res_a, res_b, res_c, 0.0)
-							/ calcExponentialOffset(res_a, res_b, res_c, (double) (i + 1));
+							/ calcExponentialOffset(res_a, res_b, res_c, (double) ( i ));
 					curip.multiply(ratio);
 				}
 			}
 		} else {
+			if (verbose)
+				IJ.log("Original Int" + "\t" + "Corrected Int"+ "\t" + "Ratio");
+
 			for (int i = 0; i < imp.getStackSize(); i++) {
 				curip = imp.getImageStack().getProcessor(i + 1);
+
+				double orgint = curip.getStatistics().mean;
+				
 				ratio = calcExponentialOffset(res_a, res_b, res_c, 0.0)
-						/ calcExponentialOffset(res_a, res_b, res_c, (double) (i + 1));
+						/ calcExponentialOffset(res_a, res_b, res_c, (double) ( i ));
 				curip.multiply(ratio);
+
+				double corint = curip.getStatistics().mean;
+
+				//for testing
+				if (verbose) {
+					String monitor = Double.toString(orgint) + "\t" + Double.toString(corint) + "\t" +
+							Double.toString(ratio);
+					IJ.log(monitor);
+				}
 			}
 		}
 	}
 
+	public static void main(String[] args) {
+		// test using synthetic bleaching
+		int frames = 50;
+		ImagePlus imp = NewImage.createByteImage("testBleach",
+				25, 25, frames, NewImage.FILL_BLACK);
+		BleachCorrection_ExpoFit bce = new BleachCorrection_ExpoFit(imp);
+		int offset = 10;
+		int amp = 150;
+		double exp = 0.05;
+		ArrayList<Integer> orgintA = new ArrayList<Integer>();
+		for (int f = 0; f < frames; f++) {
+			double intensity = bce.calcExponentialOffset(amp, exp, offset, f);
+			ImageProcessor ip = imp.getStack().getProcessor(f + 1);
+			int grayscale = (int) intensity;
+			ip.setColor(grayscale);
+			ip.fill();
+			orgintA.add(grayscale);
+		}
+		ImagePlus dupimp = imp.duplicate();
+		bce = new BleachCorrection_ExpoFit(dupimp);
+		bce.setVerbose(true);		
+		bce.core();
+		dupimp.show();
+		IJ.log("Original Int" + "\t" + "Corrected Int");
+		for (int f = 0; f < frames; f++) {
+			double orgstatMean = imp.getStack().getProcessor(f + 1).getStatistics().mean;
+			double corstatMean = dupimp.getStack().getProcessor(f + 1).getStatistics().mean;
+			IJ.log(String.valueOf(orgstatMean) + "\t" + String.valueOf(corstatMean));
+		}
+
+	}
 }
