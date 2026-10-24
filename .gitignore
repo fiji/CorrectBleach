@@ -1,5 +1,6 @@
 # Eclipse #
 /.classpath
+/.factorypath
 /.project
 /.settings/
 
@@ -12,3 +13,6 @@
 # misc #
 /tags
 .vscode/*
+
+# IntelliJ #
+/.idea/
